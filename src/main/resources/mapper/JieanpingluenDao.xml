@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JieanpingluenDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.anyuan_id as anyuanId
+        ,a.jieanpingluen_text as jieanpingluenText
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JieanpingluenView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,anyuan.anyuan_uuid_number as anyuanUuidNumber
+        ,anyuan.anyuan_name as anyuanName
+        ,anyuan.anyuan_types as anyuanTypes
+        ,anyuan.yonghu_id as anyuanYonghuId
+        ,anyuan.anyuan_content as anyuanContent
+        ,anyuan.anyuan_yesno_types as anyuanYesnoTypes
+        ,anyuan.anyuan_yesno_text as anyuanYesnoText
+        ,anyuan.anyuan_delete as anyuanDelete
+
+        FROM jieanpingluen  a
+        left JOIN anyuan anyuan ON a.anyuan_id = anyuan.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.anyuanId != null and params.anyuanId != ''">
+                and (
+                    a.anyuan_id = #{params.anyuanId}
+                )
+            </if>
+            <if test=" params.jieanpingluenText != '' and params.jieanpingluenText != null and params.jieanpingluenText != 'null' ">
+                and a.jieanpingluen_text like CONCAT('%',#{params.jieanpingluenText},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断案源信息的id不为空 -->
+            <if test=" params.anyuanIdNotNull != '' and params.anyuanIdNotNull != null and params.anyuanIdNotNull != 'null' ">
+                and a.anyuan_id IS NOT NULL
+            </if>
+            <if test=" params.anyuanUuidNumber != '' and params.anyuanUuidNumber != null and params.anyuanUuidNumber != 'null' ">
+                and anyuan.anyuan_uuid_number like CONCAT('%',#{params.anyuanUuidNumber},'%')
+            </if>
+            <if test=" params.anyuanName != '' and params.anyuanName != null and params.anyuanName != 'null' ">
+                and anyuan.anyuan_name like CONCAT('%',#{params.anyuanName},'%')
+            </if>
+            <if test="params.anyuanTypes != null  and params.anyuanTypes != ''">
+                and anyuan.anyuan_types = #{params.anyuanTypes}
+            </if>
+
+            <if test="params.yonghuId != null  and params.yonghuId != ''">
+                and anyuan.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.anyuanContent != '' and params.anyuanContent != null and params.anyuanContent != 'null' ">
+                and anyuan.anyuan_content like CONCAT('%',#{params.anyuanContent},'%')
+            </if>
+            <if test="params.anyuanYesnoTypes != null  and params.anyuanYesnoTypes != ''">
+                and anyuan.anyuan_yesno_types = #{params.anyuanYesnoTypes}
+            </if>
+
+            <if test=" params.anyuanYesnoText != '' and params.anyuanYesnoText != null and params.anyuanYesnoText != 'null' ">
+                and anyuan.anyuan_yesno_text like CONCAT('%',#{params.anyuanYesnoText},'%')
+            </if>
+            <if test="params.anyuanDeleteStart != null  and params.anyuanDeleteStart != '' ">
+                <![CDATA[  and anyuan.anyuan_delete >= #{params.anyuanDeleteStart}   ]]>
+            </if>
+            <if test="params.anyuanDeleteEnd != null  and params.anyuanDeleteEnd != '' ">
+                <![CDATA[  and anyuan.anyuan_delete <= #{params.anyuanDeleteEnd}   ]]>
+            </if>
+            <if test="params.anyuanDelete != null  and params.anyuanDelete != '' ">
+                and anyuan.anyuan_delete = #{params.anyuanDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(anyuan.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(anyuan.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

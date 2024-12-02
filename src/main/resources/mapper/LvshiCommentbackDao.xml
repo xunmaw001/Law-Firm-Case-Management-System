@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LvshiCommentbackDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.lvshi_id as lvshiId
+        ,a.yonghu_id as yonghuId
+        ,a.lvshi_commentback_text as lvshiCommentbackText
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LvshiCommentbackView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,lvshi.lvshi_name as lvshiName
+        ,lvshi.lvshi_photo as lvshiPhoto
+        ,lvshi.lvshi_phone as lvshiPhone
+        ,lvshi.lvshi_id_number as lvshiIdNumber
+        ,lvshi.lvshi_email as lvshiEmail
+        ,lvshi.lvshi_delete as lvshiDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM lvshi_commentback  a
+        left JOIN lvshi lvshi ON a.lvshi_id = lvshi.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.lvshiId != null and params.lvshiId != ''">
+                and (
+                    a.lvshi_id = #{params.lvshiId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test=" params.lvshiCommentbackText != '' and params.lvshiCommentbackText != null and params.lvshiCommentbackText != 'null' ">
+                and a.lvshi_commentback_text like CONCAT('%',#{params.lvshiCommentbackText},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断律师的id不为空 -->
+            <if test=" params.lvshiIdNotNull != '' and params.lvshiIdNotNull != null and params.lvshiIdNotNull != 'null' ">
+                and a.lvshi_id IS NOT NULL
+            </if>
+            <if test=" params.lvshiName != '' and params.lvshiName != null and params.lvshiName != 'null' ">
+                and lvshi.lvshi_name like CONCAT('%',#{params.lvshiName},'%')
+            </if>
+            <if test=" params.lvshiPhone != '' and params.lvshiPhone != null and params.lvshiPhone != 'null' ">
+                and lvshi.lvshi_phone like CONCAT('%',#{params.lvshiPhone},'%')
+            </if>
+            <if test=" params.lvshiIdNumber != '' and params.lvshiIdNumber != null and params.lvshiIdNumber != 'null' ">
+                and lvshi.lvshi_id_number like CONCAT('%',#{params.lvshiIdNumber},'%')
+            </if>
+            <if test=" params.lvshiEmail != '' and params.lvshiEmail != null and params.lvshiEmail != 'null' ">
+                and lvshi.lvshi_email like CONCAT('%',#{params.lvshiEmail},'%')
+            </if>
+            <if test="params.lvshiDeleteStart != null  and params.lvshiDeleteStart != '' ">
+                <![CDATA[  and lvshi.lvshi_delete >= #{params.lvshiDeleteStart}   ]]>
+            </if>
+            <if test="params.lvshiDeleteEnd != null  and params.lvshiDeleteEnd != '' ">
+                <![CDATA[  and lvshi.lvshi_delete <= #{params.lvshiDeleteEnd}   ]]>
+            </if>
+            <if test="params.lvshiDelete != null  and params.lvshiDelete != '' ">
+                and lvshi.lvshi_delete = #{params.lvshiDelete}
+            </if>
+                <!-- 判断客户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
